@@ -1,6 +1,6 @@
 import logging
 from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid
-from info import AUTH_CHANNEL, LONG_IMDB_DESCRIPTION, MAX_LIST_ELM, REQ_CHANNEL
+from info import AUTH_CHANNEL, LONG_IMDB_DESCRIPTION, MAX_LIST_ELM, REQ_CHANNEL1, REQ_CHANNEL2
 from imdb import IMDb
 import asyncio
 from pyrogram.types import Message, InlineKeyboardButton
@@ -43,37 +43,87 @@ class temp(object):
     SETTINGS = {}
     SPELL_CHECK = {}
 
-async def is_subscribed(bot, query):
-    
-    ADMINS.extend([1125210189]) if not 1125210189 in ADMINS else ""
-
-    if not AUTH_CHANNEL and not REQ_CHANNEL:
-        return True
-    elif query.from_user.id in ADMINS:
-        return True
-
-
-    if db2().isActive():
-        user = await db2().get_user(query.from_user.id)
-        if user:
+async def check_loop_sub(client, message):
+    count = 0
+    while count < 15:
+        check = await is_requested_one(client, message)
+        check2 = await is_requested_two(client, message)
+        count += 1
+        if check and check2:
             return True
-        else:
-            return False
+        await asyncio.sleep(1.5)
+    return False
 
-    if not AUTH_CHANNEL:
+async def check_loop_sub1(client, message):
+    count = 0
+    while count < 15:
+        if await is_requested_one(client, message):
+            return True
+        count += 1
+        await asyncio.sleep(1)
+    return False
+
+async def check_loop_sub2(client, message):
+    count = 0
+    while count < 15:
+        if await is_requested_two(client, message):
+            return True
+        count += 1
+        await asyncio.sleep(1)
+    return False
+
+async def is_requested_one(self , message):
+    user = await db.get_req_one(int(message.from_user.id))
+    if user:
+        return True
+    if message.from_user.id in ADMINS:
         return True
     try:
-        user = await bot.get_chat_member(AUTH_CHANNEL, query.from_user.id)
+        user = await self.get_chat_member(int(REQ_CHANNEL1), message.from_user.id)
     except UserNotParticipant:
-        return False
+        pass
     except Exception as e:
         logger.exception(e)
-        return False
+        pass
     else:
         if not (user.status == enums.ChatMemberStatus.BANNED):
             return True
         else:
-            return False
+            pass
+    return False
+    
+async def is_requested_two(self, message):
+    user = await db.get_req_two(int(message.from_user.id))
+    if user:
+        return True
+    if message.from_user.id in ADMINS:
+        return True
+    try:
+        user = await self.get_chat_member(int(REQ_CHANNEL2), message.from_user.id)
+    except UserNotParticipant:
+        pass
+    except Exception as e:
+        logger.exception(e)
+        pass
+    else:
+        if not (user.status == enums.ChatMemberStatus.BANNED):
+            return True
+        else:
+            pass
+    return False
+    
+async def is_subscribed(bot, query):
+    try:
+        user = await bot.get_chat_member(AUTH_CHANNEL, query.from_user.id)
+    except UserNotParticipant:
+        pass
+    except Exception as e:
+        logger.exception(e)
+    else:
+        if user.status != 'kicked':
+            return True
+
+    return False
 
 async def get_poster(query, bulk=False, id=False, file=None):
     if not id:
