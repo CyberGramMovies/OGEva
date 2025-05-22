@@ -520,3 +520,90 @@ async def settings(client, message):
         )
 
 
+@Client.on_message(filters.command("viewchat1") & filters.user(ADMINS))
+async def get_fsub_chat(bot: Client, update: Message):
+    await update.react("👍")
+    chat = await db.get_fsub_chat()
+    if not chat:
+        await update.reply_text("No fsub chat found in the database.", quote=True)
+        return
+    else:
+        await update.reply_text(f"Fsub chat: <code>{chat['chat_id']}</code>", quote=True, parse_mode=enums.ParseMode.HTML)
+        
+@Client.on_message(filters.command("setchat2") & filters.user(ADMINS))
+async def add_fsub_chats2(bot: Client, update: Message):
+    await update.react("🍌")
+    chat = update.command[1] if len(update.command) > 1 else None
+    if not chat:
+        await update.reply_text("Invalid chat id.", quote=True)
+        return
+    else:
+        chat = int(chat)
+    await db.add_fsub_chat2(chat)
+
+    text = f"Added chat <code>{chat}</code> to the database."
+    await update.reply_text(text=text, quote=True, parse_mode=enums.ParseMode.HTML)
+    with open("./dynamic.env", "wt+") as f:
+        f.write(f"REQ_CHANNEL2={chat}\n")
+    restarti.update_one(
+        {"_id": "frestart"},
+        {"$set": {"restart": "on"}},
+        upsert=True
+    )
+    os.execl(sys.executable, sys.executable, "bot.py")
+
+
+@Client.on_message(filters.command("delchat2") & filters.user(ADMINS))
+async def clear_fsub_chats2(bot: Client, update: Message):
+    await update.react("👍")
+    await db.delete_fsub_chat2(chat_id=(await db.get_fsub_chat2())['chat_id'])
+    await update.reply_text(text="Deleted fsub chat from the database.", quote=True)
+    with open("./dynamic.env", "wt+") as f:
+        f.write(f"REQ_CHANNEL2=False\n")
+
+    logger.info("Restarting to update REQ_CHANNEL from database...")
+    os.execl(sys.executable, sys.executable, "bot.py")
+    
+@Client.on_message(filters.command("viewchat2") & filters.user(ADMINS))
+async def get_fsub_chat2(bot: Client, update: Message):
+    await update.react("👍")
+    chat = await db.get_fsub_chat2()
+    if not chat:
+        await update.reply_text("No fsub chat found in the database.", quote=True)
+        return
+    else:
+        await update.reply_text(f"Fsub chat: <code>{chat['chat_id']}</code>", quote=True, parse_mode=enums.ParseMode.HTML)
+
+@Client.on_message(filters.command("setchat1") & filters.user(ADMINS))
+async def add_fsub_chats(bot: Client, update: Message):
+    await update.react("🌭")
+    chat = update.command[1] if len(update.command) > 1 else None
+    if not chat:
+        await update.reply_text("Invalid chat id.", quote=True)
+        return
+    else:
+        chat = int(chat)
+    await db.add_fsub_chat(chat)
+
+    text = f"Added chat <code>{chat}</code> to the database."
+    await update.reply_text(text=text, quote=True, parse_mode=enums.ParseMode.HTML)
+    with open("./dynamic.env", "wt+") as f:
+        f.write(f"REQ_CHANNEL1={chat}\n")
+    restarti.update_one(
+        {"_id": "frestart"},
+        {"$set": {"restart": "on"}},
+        upsert=True
+    )
+    os.execl(sys.executable, sys.executable, "bot.py")
+
+
+@Client.on_message(filters.command("delchat1") & filters.user(ADMINS))
+async def clear_fsub_chats(bot: Client, update: Message):
+    await update.react("👍")
+    await db.delete_fsub_chat(chat_id=(await db.get_fsub_chat())['chat_id'])
+    await update.reply_text(text="Deleted fsub chat from the database.", quote=True)
+    with open("./dynamic.env", "wt+") as f:
+        f.write(f"REQ_CHANNEL1=False\n")
+
+    logger.info("Restarting to update REQ_CHANNEL from database...")
+    os.execl(sys.executable, sys.executable, "bot.py")
