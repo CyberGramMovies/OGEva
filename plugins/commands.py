@@ -5,11 +5,11 @@ from pyrogram.errors import ChatAdminRequired, FloodWait
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from database.ia_filterdb import Media, get_file_details, unpack_new_file_id
 from database.users_chats_db import db
-from info import CHANNELS, ADMINS, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, REQ_CHANNEL
-from utils import get_settings, get_size, is_subscribed, save_group_settings, temp
+from info import CHANNELS, ADMINS, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, REQ_CHANNEL1, REQ_CHANNEL2
+from utils import get_settings, get_size, save_group_settings, temp, check_loop_sub, check_loop_sub1, check_loop_sub2, is_subscribed, is_requested_one, is_requested_two
 from database.connections_mdb import active_connection
 logger = logging.getLogger(__name__)
-from plugins.fsub import ForceSub
+
 
 BATCH_FILES = {}
 
@@ -60,11 +60,79 @@ async def start(client, message):
             parse_mode=enums.ParseMode.HTML
         )
         return
+    if REQ_CHANNEL1 and not await is_requested_one(client, message):
+        btn = [[
+            InlineKeyboardButton(
+                "➳ 𝐽𝑂𝐼𝑁 𝑈𝑃𝐷𝐴𝑇𝐸 𝐶𝐻𝑁𝑁𝑁𝐸𝐿 ✺", url=client.req_link1)
+        ]]
+        should_run_check_loop_sub1 = True
+        should_run_check_loop_sub = False
+        try:
+            if REQ_CHANNEL2 and not await is_requested_two(client, message):
+                btn.append(
+                      [
+                    InlineKeyboardButton(
+                        "➳ 𝐽𝑂𝐼𝑁 𝑈𝑃𝐷𝐴𝑇𝐸 𝐶𝐻𝑁𝑁𝑁𝐸𝐿 ✺", url=client.req_link2)
+                      ]
+                )
+                should_run_check_loop_sub = True                      
+        except Exception as e:
+            print(e)
+        if message.command[1] != "subscribe":
+            try:
+                kk, file_id = message.command[1].split("_", 1)
+                pre = 'checksubp' if kk == 'filep' else 'checksub' 
+                btn.append([InlineKeyboardButton("🔄 Try Again 🔄", callback_data=f"{pre}#{file_id}")])
+            except (IndexError, ValueError):
+                btn.append([InlineKeyboardButton("🔄 Try Again 🔄", url=f"https://t.me/{temp.U_NAME}?start={message.command[1]}")])
+        sh = await client.send_message(
+            chat_id=message.from_user.id,
+            text="**♦️ 𝗥𝗘𝗔𝗗 𝗧𝗛𝗜𝗦 𝗜𝗡𝗦𝗧𝗥𝗨𝗖𝗧𝗜𝗢𝗡 ♦️\n\nനിങ്ങൾ ചോദിക്കുന്ന സിനിമകൾ ലഭിക്കണം എന്നുണ്ടെങ്കിൽ നിങ്ങൾ ഞങ്ങളുടെ ചാനലിൽ ജോയിൻ ചെയ്തിരിക്കണം. ജോയിൻ ചെയ്യാൻ ✺ 𝐽𝑂𝐼𝑁 𝑈𝑃𝐷𝐴𝑇𝐸 𝐶𝐻𝑁𝑁𝑁𝐸𝐿 ✺ എന്ന ബട്ടണിൽ ക്ലിക്ക് ചെയ്യാവുന്നതാണ്.\n\nജോയിൻ ചെയ്ത ശേഷം 🔄 Try Again 🔄 എന്ന ബട്ടണിൽ അമർത്തിയാൽ നിങ്ങൾക്ക് ഞാൻ ആ സിനിമ അയച്ചു തരുന്നതാണ്..\n\nCLICK ✺ 𝐽𝑂𝐼𝑁 𝑈𝑃𝐷𝐴𝑇𝐸 𝐶𝐻𝑁𝑁𝑁𝐸𝐿 ✺ AND THEN CLICK 🔄 Try Again 🔄 BUTTON TO GET MOVIE FILE 🗃️**",
+            reply_markup=InlineKeyboardMarkup(btn),
+            parse_mode=enums.ParseMode.MARKDOWN
+            )
+        if should_run_check_loop_sub:
+            check = await check_loop_sub(client, message)
+        elif should_run_check_loop_sub1:
+            check = await check_loop_sub1(client, message)
+        if check:     
+            await send_file(client, message, pre, file_id)
+            await sh.delete()        
+            return
+        else:
+            return False
+
+    if REQ_CHANNEL2 and not await is_requested_two(client, message):
+        btn = [[
+            InlineKeyboardButton(
+                "Update Channel 2", url=client.req_link2)
+        ]]
+        if message.command[1] != "subscribe":
+            try:
+                kk, file_id = message.command[1].split("_", 1)
+                pre = 'checksubp' if kk == 'filep' else 'checksub' 
+                btn.append([InlineKeyboardButton("Try Again", callback_data=f"{pre}#{file_id}")])
+            except (IndexError, ValueError):
+                btn.append([InlineKeyboardButton("Try Again", url=f"https://t.me/{temp.U_NAME}?start={message.command[1]}")])
+        sh = await client.send_message(
+            chat_id=message.from_user.id,
+            text="**♦️ 𝗥𝗘𝗔𝗗 𝗧𝗛𝗜𝗦 𝗜𝗡𝗦𝗧𝗥𝗨𝗖𝗧𝗜𝗢𝗡 ♦️\n\nനിങ്ങൾ ചോദിക്കുന്ന സിനിമകൾ ലഭിക്കണം എന്നുണ്ടെങ്കിൽ നിങ്ങൾ ഞങ്ങളുടെ ചാനലിൽ ജോയിൻ ചെയ്തിരിക്കണം. ജോയിൻ ചെയ്യാൻ ✺ 𝐽𝑂𝐼𝑁 𝑈𝑃𝐷𝐴𝑇𝐸 𝐶𝐻𝑁𝑁𝑁𝐸𝐿 ✺ എന്ന ബട്ടണിൽ ക്ലിക്ക് ചെയ്യാവുന്നതാണ്.\n\nജോയിൻ ചെയ്ത ശേഷം 🔄 Try Again 🔄 എന്ന ബട്ടണിൽ അമർത്തിയാൽ നിങ്ങൾക്ക് ഞാൻ ആ സിനിമ അയച്ചു തരുന്നതാണ്..\n\nജോയിൻ ചെയ്ത ശേഷം 🔄 Try Again 🔄 എന്ന ബട്ടണിൽ അമർത്തിയാൽ നിങ്ങൾക്ക് ഞാൻ ആ സിനിമ അയച്ചു തരുന്നതാണ്..\n\nCLICK ✺ 𝐽𝑂𝐼𝑁 𝑈𝑃𝐷𝐴𝑇𝐸 𝐶𝐻𝑁𝑁𝑁𝐸𝐿 ✺ AND THEN CLICK 🔄 Try Again 🔄 BUTTON TO GET MOVIE FILE 🗃️**",
+            reply_markup=InlineKeyboardMarkup(btn),
+            parse_mode=enums.ParseMode.MARKDOWN
+        )
+        check = await check_loop_sub2(client, message)
+        if check:
+            await send_file(client, message, pre, file_id)
+            await sh.delete()     
+            return 
+        else:
+            return False
+            
     data = message.command[1]
     try:
         pre, file_id = data.split('_', 1)
     except:
-        file_id = data
+        file_id return                                 
         pre = ""
     if data.split("-", 1)[0] == "BATCH":
         sts = await message.reply("Please wait")
