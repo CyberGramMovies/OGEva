@@ -1,7 +1,7 @@
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid
-from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, MELCOW_NEW_USERS
+from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, MELCOW_NEW_USERS, REQ_CHANNEL1, REQ_CHANNEL2
 from database.users_chats_db import db
 from database.ia_filterdb import Media
 from utils import get_size, temp, get_settings
@@ -276,3 +276,33 @@ async def list_chats(bot, message):
         with open('chats.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('chats.txt', caption="List Of Chats")
+
+@Client.on_message(filters.command('purge_one') & filters.private & filters.user(ADMINS))
+async def purge_req_one(bot, message):
+    r = await message.reply("`processing...`")
+    await db.delete_all_one()
+    await r.edit("**Req db Cleared**" )
+
+
+@Client.on_message(filters.command('purge_two') & filters.private & filters.user(ADMINS))
+async def purge_req_two(bot, message):
+    r = await message.reply("`processing...`")
+    await db.delete_all_two()
+    await r.edit("**Req db Cleared**" )
+
+@Client.on_message(filters.command("totalreq") & filters.user(ADMINS))
+async def total_requests(bot, message): 
+    rju = await message.reply('Fetching stats..')
+    total_one = await db.get_all_one_count()
+    total_two = await db.get_all_two_count()
+    if REQ_CHANNEL1 != False: 
+        req_channel1 = await bot.get_chat(REQ_CHANNEL1)
+        req_channel1 = req_channel1.title
+    else:
+        req_channel1 = "REQ_CHANNEL1"
+    if REQ_CHANNEL2 != False:
+        req_channel2 = await bot.get_chat(REQ_CHANNEL2)
+        req_channel2 = req_channel2.title
+    else:
+        req_channel2 = "REQ_CHANNEL2"
+    await rju.edit(f"{req_channel1} : {total_one}\n{req_channel2} : {total_two}")
