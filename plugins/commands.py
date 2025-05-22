@@ -132,7 +132,7 @@ async def start(client, message):
     try:
         pre, file_id = data.split('_', 1)
     except:
-        file_id return                                 
+        file_id = data
         pre = ""
     if data.split("-", 1)[0] == "BATCH":
         sts = await message.reply("Please wait")
