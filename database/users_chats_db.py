@@ -7,8 +7,11 @@ class Database:
     def __init__(self, uri, database_name):
         self._client = motor.motor_asyncio.AsyncIOMotorClient(uri)
         self.db = self._client[database_name]
+        self.req_one = self.db.reqone
+        self.req_two = self.db.reqtwo
         self.col = self.db.users
         self.grp = self.db.groups
+        self.chat_col = self.db.chatcol
 
 
     def new_user(self, id, name):
