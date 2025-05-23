@@ -137,10 +137,81 @@ class Database:
 
     async def get_all_chats(self):
         return self.grp.find({})
+        
+    async def add_req_one(self, user_id):
+        try:
+            await self.req_one.insert_one({"user_id": int(user_id)})
+            return
+        except Exception as e:
+            print(e)
+            pass
+        
+    async def add_req_two(self, user_id):
+        try:
+            await self.req_two.insert_one({"id": int(user_id)})
+            return
+        except Exception as e:
+            print(e)
+            pass
+            
+    async def get_req_one(self, user_id):
+        return await self.req_one.find_one({"user_id": int(user_id)})
+
+    async def get_req_two(self, user_id):
+        return await self.req_two.find_one({"id": int(user_id)})
+
+    async def delete_all_one(self):
+        await self.req_one.delete_many({})
+
+    async def delete_all_two(self):
+        await self.req_two.delete_many({})
+
+    async def get_all_one_count(self): 
+        count = 0
+        async for req in self.req_one.find({}):
+            count += 1
+        return count
+
+    async def get_all_two_count(self): 
+        count = 0
+        async for req in self.req_two.find({}):
+            count += 1
+        return count
+
+    async def add_fsub_chat(self, chat_id):
+        try:
+            await self.chat_col.delete_many({})
+            await self.req_one.delete_many({})
+            await self.chat_col.insert_one({"chat_id": chat_id})
+        except:
+            pass
+
+    async def get_fsub_chat(self):
+        return await self.chat_col.find_one({})
+
+    async def delete_fsub_chat(self, chat_id):
+        await self.chat_col.delete_one({"chat_id": chat_id})
+        await self.req_one.delete_many({})
+
+    async def add_fsub_chat2(self, chat_id):
+        try:
+            await self.chat_col2.delete_many({})
+            await self.req_two.delete_many({})
+            await self.chat_col2.insert_one({"chat_id": chat_id})
+        except:
+            pass
+
+    async def get_fsub_chat2(self):
+        return await self.chat_col2.find_one({})
+
+    async def delete_fsub_chat2(self, chat_id):
+        await self.chat_col2.delete_one({"chat_id": chat_id})
+        await self.req_two.delete_many({})
 
 
     async def get_db_size(self):
         return (await self.db.command("dbstats"))['dataSize']
 
 
+    
 db = Database(DATABASE_URI, DATABASE_NAME)
