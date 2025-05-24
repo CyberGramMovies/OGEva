@@ -29,7 +29,7 @@ pyroutils.MIN_CHANNEL_ID = -100999999999999
 from os import environ
 from aiohttp import web
 from plugins import web_server
-PORT = environ.get("PORT", "8050")
+PORT = environ.get("PORT", "8045")
 
 class Bot(Client):
 
