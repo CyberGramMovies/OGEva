@@ -38,7 +38,7 @@ DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://mubaarakharis:kLwKRxzS
 DATABASE_NAME = environ.get('DATABASE_NAME', "Cluster0")
 COLLECTION_NAME = environ.get('COLLECTION_NAME', 'vjcollection')
 
-REQ_CHANNEL1=environ.get("REQ_CHANNEL1", "-1002566158139")
+REQ_CHANNEL1=environ.get("REQ_CHANNEL1", "-1001808805340")
 REQ_CHANNEL1 = (int(REQ_CHANNEL1) if REQ_CHANNEL1 and id_pattern.search(REQ_CHANNEL1) else False) if REQ_CHANNEL1 is not None else None
 REQ_CHANNEL2=environ.get("REQ_CHANNEL2", None)
 REQ_CHANNEL2 = (int(REQ_CHANNEL2) if REQ_CHANNEL2 and id_pattern.search(REQ_CHANNEL2) else False) if REQ_CHANNEL2 is not None else None
