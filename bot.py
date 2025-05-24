@@ -28,9 +28,9 @@ pyroutils.MIN_CHANNEL_ID = -100999999999999
 
 from plugins.webcode import bot_run
 from os import environ
-from aiohttp import web as webserver
-
-PORT_CODE = environ.get("PORT", "8080")
+from aiohttp import web
+from plugins import web_server
+PORT = environ.get("PORT", "8050")
 
 class Bot(Client):
 
@@ -85,11 +85,10 @@ class Bot(Client):
             os.execl(sys.executable, sys.executable, "bot.py")
             return 
 
-        client = webserver.AppRunner(await bot_run())
-        await client.setup()
+        app = web.AppRunner(await web_server())
+        await app.setup()
         bind_address = "0.0.0.0"
-        await webserver.TCPSite(client, bind_address,
-        PORT_CODE).start()
+        await web.TCPSite(app, bind_address, PORT).start()
 
         if REQ_CHANNEL1 != False:           
             try:
