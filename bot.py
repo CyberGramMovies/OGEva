@@ -17,9 +17,13 @@ import sys
 from utils import temp
 from typing import Union, Optional, AsyncGenerator
 from pyrogram import types
+from dotenv import load_dotenv
+
+load_dotenv("./dynamic.env", override=True, encoding="utf-8")
 
 # for prevent stoping the bot after 1 week
 logging.getLogger("asyncio").setLevel(logging.CRITICAL -1)
+load_dotenv("./dynamic.env", override=True, encoding="utf-8")
 
 # peer id invaild fixxx
 from pyrogram import utils as pyroutils
@@ -39,7 +43,7 @@ class Bot(Client):
             api_id=API_ID,
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
-            workers=50,
+            workers=200,
             plugins={"root": "plugins"},
             sleep_threshold=5,
         )
