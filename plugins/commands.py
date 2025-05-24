@@ -16,6 +16,35 @@ load_dotenv("./dynamic.env", override=True, encoding="utf-8")
 
 BATCH_FILES = {}
 
+async def send_file(client, query, ident, file_id):
+    files_ = await get_file_details(file_id)
+    if not files_:
+        return
+    files = files_[0]
+    title = files.file_name
+    size = get_size(files.file_size)
+    f_caption = files.file_name
+    if CUSTOM_FILE_CAPTION:
+        try:
+            f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption, mention=query.from_user.mention)
+        except Exception as e:
+            logger.exception(e)
+            f_caption = f_caption
+    if f_caption is None:
+        f_cation = f"{title}"    
+    ok = await client.send_cached_media(
+        chat_id=query.from_user.id,
+        file_id=file_id,
+        caption=f_caption,
+        protect_content=True if ident == 'checksubp' else False,
+        reply_markup=reply_markup
+    ) 
+    k = await message.reply_text("<b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis Movie Files/Videos will be deleted in <b><u>30 mins</u> 🫥 <i></b>(Due to Copyright Issues)</i>.\n\n<b><i>Please forward this ALL Files/Videos to your Saved Messages and Start Download there</i></b>")
+    await asyncio.sleep(1800)
+    await ok.delete()
+    await k.edit("<b>Your File/Video is successfully deleted!!!</b>")
+    return
+    
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
