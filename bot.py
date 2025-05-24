@@ -58,9 +58,6 @@ class Bot(Client):
         self.username = '@' + me.username
         logging.info(f"{me.first_name} with for Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
         logging.info(LOG_STR)
-        await self.send_message(chat_id=LOG_CHANNEL,text="Restart Successfully ✓\nKuttu Bot 2 💫")
-        print("Og Eva Re-editeD ⚡")
-
         if REQ_CHANNEL1 == None:
             with open("./dynamic.env", "wt+") as f:
                 req = await db.get_fsub_chat()                
@@ -84,11 +81,12 @@ class Bot(Client):
             logging.info("Loading REQ_CHANNEL...") 
             os.execl(sys.executable, sys.executable, "bot.py")
             return 
-
+        await self.send_message(chat_id=LOG_CHANNEL, text="restarted ❤️‍🩹")
+        
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
-        await web.TCPSite(app, bind_address, PORT).start()
+        await web.TCPSite(app, bind_address, PORT).start()       
 
         if REQ_CHANNEL1 != False:           
             try:
@@ -102,8 +100,7 @@ class Bot(Client):
                 self.req_link2 = _link.invite_link
             except Exception as e:
                 logging.info(f"Make Sure REQ_CHANNEL 2 ID is correct or {e}")
-
-    
+        
     async def stop(self, *args):
         await super().stop()
         logging.info("Bot stopped. Bye.")
