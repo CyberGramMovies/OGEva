@@ -9,6 +9,9 @@ from info import CHANNELS, ADMINS, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_C
 from utils import get_settings, get_size, save_group_settings, temp, check_loop_sub, check_loop_sub1, check_loop_sub2, is_subscribed, is_requested_one, is_requested_two
 from database.connections_mdb import active_connection
 logger = logging.getLogger(__name__)
+from dotenv import load_dotenv
+
+load_dotenv("./dynamic.env", override=True, encoding="utf-8")
 
 
 BATCH_FILES = {}
