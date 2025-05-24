@@ -12,6 +12,8 @@ class Database:
         self.col = self.db.users
         self.grp = self.db.groups
         self.chat_col = self.db.chatcol
+        self.chat_col2 = self.db.chatcol2
+
 
 
     def new_user(self, id, name):
