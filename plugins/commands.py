@@ -37,7 +37,6 @@ async def send_file(client, query, ident, file_id):
         file_id=file_id,
         caption=f_caption,
         protect_content=True if ident == 'checksubp' else False,
-        reply_markup=reply_markup
     ) 
     k = await message.reply_text("<b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis Movie Files/Videos will be deleted in <b><u>30 mins</u> 🫥 <i></b>(Due to Copyright Issues)</i>.\n\n<b><i>Please forward this ALL Files/Videos to your Saved Messages and Start Download there</i></b>")
     await asyncio.sleep(1800)
